@@ -116,7 +116,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    index_tickers = ["^GSPC", "^SP400", "^SP600", "^FTSE", "^FTMC", "^FTAS", "DAX", "^FCHI" "^IXIC", "^DJI"]
+    index_tickers = ["^GSPC", "^SP400", "^SP600", "^FTSE", "^FTMC", "^FTAS", "DAX", "^FCHI", "^IXIC", "^DJI"]
     company_tickers = ["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA", "CSCO", "META", "ANET", "NKE", "BLZE", "AMZN", "AVGO", "INTC", "AMD" ]
     etf_tickers = ["DXJG.L", "FLO5.L", "ISF.L", "CSP1.L", "EMVL.L", "ISFR.L", "FSEU.L", "SPX4.L", "VGER.L", "VEMT.L", "WDEP.L"]
 
