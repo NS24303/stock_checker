@@ -3,7 +3,7 @@ import yfinance as yf
 CURRENCY_SYMBOLS = {
     "USD": "$",
     "GBP": "£",
-    "GBp": "£",  # Display as pounds after conversion
+    "GBp": "£",  # Display as £ after conversion
     "EUR": "€",
     "JPY": "¥",
 }
@@ -33,7 +33,7 @@ def check_stocks(tickers, group_name):
                 current_price = round(current_price / 100, 2)
             if isinstance(previous_close, (int, float)):
                 previous_close = round(previous_close / 100, 2)
-            currency = "GBP"  # For display
+            currency = "GBP" 
 
         if isinstance(current_price, (int, float)):
             price_str = f"{currency_symbol}{current_price}"
@@ -55,7 +55,8 @@ def check_stocks(tickers, group_name):
         else:
             volume_str = str(volume)            
 
-        print(f"{name} ({symbol})")
+        print(f"{name}")
+        print(f"  Ticker Symbol: {symbol}")
         print(f"  Current Price: {price_str}")
         #print(f"  Currency: {currency}")
         print(f"  Day Change: {day_change}")
