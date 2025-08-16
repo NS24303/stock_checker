@@ -1,5 +1,6 @@
 from flask import Flask, render_template_string
 import yfinance as yf
+from datetime import datetime
 
 CURRENCY_SYMBOLS = {
     "USD": "$",
@@ -13,7 +14,7 @@ HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stock & ETF Prices</title>
+    <title>Stock & ETF Tickers</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f7f7f7; margin: 40px; }
         h2 { color: #333; }
@@ -21,13 +22,18 @@ HTML_TEMPLATE = """
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background: #4CAF50; color: white; }
         tr:nth-child(even) { background: #f2f2f2; }
+        .datetime { font-size: 1.2em; margin-bottom: 20px; color: #555; }
     </style>
 </head>
 <body>
-    <h2>Prices for Companies</h2>
-    {{ company_table|safe }}
-    <h2>Prices for ETFs</h2>
+    <div class="datetime">{{ current_datetime }}</div>
+    <h2>ETF Tickers</h2>
     {{ etf_table|safe }}
+    <h2>Indexes</h2>
+    {{ index_table|safe }}
+    <h2>Stock Tickers</h2>
+    {{ company_table|safe }}
+
 </body>
 </html>
 """
@@ -93,19 +99,46 @@ def make_table(rows):
     table += "</table>"
     return table
 
+def get_formatted_datetime():
+    now = datetime.now()
+    day = now.strftime("%A")
+    day_num = now.day
+    # Suffix for day
+    if 4 <= day_num <= 20 or 24 <= day_num <= 30:
+        suffix = "th"
+    else:
+        suffix = ["st", "nd", "rd"][day_num % 10 - 1]
+    month = now.strftime("%B")
+    time_str = now.strftime("%H:%M:%S")
+    return f"{day} {day_num}{suffix} {month} - {time_str}"
+
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    company_tickers = ["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA", "CSCO", "META", "ANET", "NKE", "BLZE", "AMZN"]
+    index_tickers = ["^GSPC", "^SP400", "^SP600", "^FTSE", "^FTMC", "^FTAS", "DAX", "^FCHI" "^IXIC", "^DJI"]
+    company_tickers = ["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA", "CSCO", "META", "ANET", "NKE", "BLZE", "AMZN", "AVGO", "INTC", "AMD" ]
     etf_tickers = ["DXJG.L", "FLO5.L", "ISF.L", "CSP1.L", "EMVL.L", "ISFR.L", "FSEU.L", "SPX4.L", "VGER.L", "VEMT.L", "WDEP.L"]
 
-    company_rows = get_stock_data(company_tickers)
+    current_datetime = get_formatted_datetime()
+
     etf_rows = get_stock_data(etf_tickers)
-    company_table = make_table(company_rows)
     etf_table = make_table(etf_rows)
 
-    return render_template_string(HTML_TEMPLATE, company_table=company_table, etf_table=etf_table)
+    index_rows = get_stock_data(index_tickers)
+    index_table = make_table(index_rows)
+
+    company_rows = get_stock_data(company_tickers)
+    company_table = make_table(company_rows)
+
+
+    return render_template_string(
+        HTML_TEMPLATE,
+        etf_table=etf_table,
+        index_table=index_table,
+        company_table=company_table,        
+        current_datetime=current_datetime
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
