@@ -99,7 +99,7 @@ def make_table(rows):
     table += "</table>"
     return table
 
-def get_formatted_datetime():
+def my_datetime():
     now = datetime.now()
     day = now.strftime("%A")
     day_num = now.day
@@ -116,11 +116,19 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    index_tickers = ["^GSPC", "^SP400", "^SP600", "^FTSE", "^FTMC", "^FTAS", "^GDAXI", "^FCHI", "^IXIC", "^DJI"]
-    company_tickers = ["AAPL", "GOOGL", "MSFT", "NVDA", "TSLA", "CSCO", "META", "ANET", "NKE", "BLZE", "AMZN", "AVGO", "INTC", "AMD" ]
-    etf_tickers = ["DXJG.L", "FLO5.L", "ISF.L", "CSP1.L", "EMVL.L", "ISFR.L", "FSEU.L", "SPX4.L", "VGER.L", "VEMT.L", "WDEP.L"]
+    index_tickers = [
+        # US Indexs
+        "^GSPC", "^SP400", "^SP600", "^IXIC", "^DJI",
+        # UK Indexes 
+        "^FTSE", "^FTMC", "^FTAS", "AIM5.L", "AIM1.L", 
+        # European Indexes
+        "^GDAXI", "^FCHI"
+    ]
+    company_tickers = ["MSFT", "NVDA", "AAPL", "GOOGL", "TSLA", "AMZN", "ANET", "CSCO", "HPE", "META", "NKE", "AVGO", "INTC", "AMD", "BLZE" ]
 
-    current_datetime = get_formatted_datetime()
+    etf_tickers = ["CSP1.L", "SPX4.L", "ISF.L", "ISFR.L", "VGER.L", "WDEP.L","FSEU.L", "DXJG.L", "EMVL.L", "VEMT.L", "FLO5.L"]
+
+    current_datetime = my_datetime()
 
     etf_rows = get_stock_data(etf_tickers)
     etf_table = make_table(etf_rows)
