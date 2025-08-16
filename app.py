@@ -86,10 +86,13 @@ def make_table(rows):
         day_change_style = ' style="color:red;"' if isinstance(day_change, (int, float)) and day_change < 0 else ""
         day_change_pct_style = ' style="color:red;"' if isinstance(day_change_pct, (int, float)) and day_change_pct < 0 else ""
 
+        # Make symbol a hyperlink
+        symbol_link = f'<a href="https://uk.finance.yahoo.com/quote/{symbol}" target="_blank">{symbol}</a>'
+
         table += (
             f"<tr>"
             f"<td>{name}</td>"
-            f"<td>{symbol}</td>"
+            f"<td>{symbol_link}</td>"
             f"<td>{price_str}</td>"
             f"<td{day_change_style}>{day_change}</td>"
             f"<td{day_change_pct_style}>{day_change_pct}</td>"
