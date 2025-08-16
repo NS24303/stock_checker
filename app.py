@@ -19,7 +19,7 @@ HTML_TEMPLATE = """
         h2 { color: #333; }
         table { border-collapse: collapse; width: 80%; margin-bottom: 40px; background: #fff; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background: #4CAF50; color: white; cursor: pointer; }
+        th { background: #4CAF50; color: white; }
         tr:nth-child(even) { background: #f2f2f2; }
     </style>
 </head>
@@ -72,7 +72,7 @@ def get_stock_data(tickers):
     return rows
 
 def make_table(rows):
-    table = '<table><tr><th>Name</th><th>Symbol</th><th>Current Price</th><th>Day Change</th><th>Day Change (%)</th><th>Volume</th></tr>'
+    table = "<table><tr><th>Name</th><th>Symbol</th><th>Current Price</th><th>Day Change</th><th>Day Change (%)</th><th>Volume</th></tr>"
     for row in rows:
         name, symbol, price_str, day_change, day_change_pct, volume_str = row
 
