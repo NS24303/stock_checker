@@ -38,17 +38,18 @@ HTML_TEMPLATE = """
 </html>
 """
 
-def get_stock_data(tickers):
+def get_stock_data(tickers, show_market_cap=False, show_volume=True):
     rows = []
     for symbol in tickers:
         ticker = yf.Ticker(symbol)
         info = ticker.info
         current_price = info.get("regularMarketPrice", "N/A")
         previous_close = info.get("regularMarketPreviousClose", "N/A")
-        volume = info.get("regularMarketVolume", "N/A")
+        volume = info.get("regularMarketVolume", "N/A") if show_volume else None
         currency = info.get("currency", "")
         currency_symbol = CURRENCY_SYMBOLS.get(currency, currency)
         name = info.get("longName", symbol)
+        market_cap = info.get("marketCap", "N/A") if show_market_cap else None
 
         # Convert GBp to GBP
         if currency == "GBp":
@@ -65,28 +66,53 @@ def get_stock_data(tickers):
             day_change = "N/A"
             day_change_pct = "N/A"
 
-        if isinstance(volume, int):
-            volume_str = "{:,}".format(volume)
+        if show_volume:
+            if isinstance(volume, int):
+                volume_str = "{:,}".format(volume)
+            else:
+                volume_str = str(volume)
         else:
-            volume_str = str(volume)
+            volume_str = None
 
         price_str = f"{currency_symbol}{current_price}" if isinstance(current_price, (int, float)) else str(current_price)
 
-        rows.append([
-            name, symbol, price_str, day_change, day_change_pct, volume_str
-        ])
+        # Format market cap
+        if show_market_cap and isinstance(market_cap, (int, float)):
+            if market_cap >= 1_000_000_000:
+                market_cap_str = f"${market_cap/1_000_000_000:.2f}B"
+            elif market_cap >= 1_000_000:
+                market_cap_str = f"${market_cap/1_000_000:.2f}M"
+            else:
+                market_cap_str = f"${market_cap:,}"
+        elif show_market_cap:
+            market_cap_str = str(market_cap)
+        else:
+            market_cap_str = None
+
+        row = [name, symbol, price_str, day_change, day_change_pct]
+        if show_volume:
+            row.append(volume_str)
+        if show_market_cap:
+            row.append(market_cap_str)
+        rows.append(row)
     return rows
 
-def make_table(rows):
-    table = "<table><tr><th>Name</th><th>Symbol</th><th>Current Price</th><th>Day Change</th><th>Day Change (%)</th><th>Volume</th></tr>"
+def make_table(rows, show_market_cap=False, show_volume=True):
+    headers = ["Name", "Symbol", "Current Price", "Day Change", "Day Change (%)"]
+    if show_volume:
+        headers.append("Volume")
+    if show_market_cap:
+        headers.append("Market Cap")
+    table = "<table><tr>" + "".join(f"<th>{h}</th>" for h in headers) + "</tr>"
     for row in rows:
-        name, symbol, price_str, day_change, day_change_pct, volume_str = row
+        name, symbol, price_str, day_change, day_change_pct = row[:5]
+        idx = 5
+        volume_str = row[idx] if show_volume else None
+        market_cap_str = row[idx+1] if show_market_cap and show_volume else (row[idx] if show_market_cap else None)
 
-        # Style for negative changes
         day_change_style = ' style="color:red;"' if isinstance(day_change, (int, float)) and day_change < 0 else ""
         day_change_pct_style = ' style="color:red;"' if isinstance(day_change_pct, (int, float)) and day_change_pct < 0 else ""
 
-        # Make symbol a hyperlink
         symbol_link = f'<a href="https://uk.finance.yahoo.com/quote/{symbol}" target="_blank">{symbol}</a>'
 
         table += (
@@ -96,9 +122,12 @@ def make_table(rows):
             f"<td>{price_str}</td>"
             f"<td{day_change_style}>{day_change}</td>"
             f"<td{day_change_pct_style}>{day_change_pct}</td>"
-            f"<td>{volume_str}</td>"
-            f"</tr>"
         )
+        if show_volume:
+            table += f"<td>{volume_str}</td>"
+        if show_market_cap:
+            table += f"<td>{market_cap_str}</td>"
+        table += "</tr>"
     table += "</table>"
     return table
 
@@ -120,15 +149,14 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     index_tickers = [
-        # US Indexs
-        "^GSPC", "^SP400", "^SP600", "^IXIC", "^DJI",
         # UK Indexes 
         "^FTSE", "^FTMC", "^FTAS", "AIM5.L", "AIM1.L", 
         # European Indexes
-        "^GDAXI", "^FCHI"
+        "^GDAXI", "^FCHI",
+        # US Indexs
+        "^GSPC", "^SP400", "^SP600", "^IXIC", "^DJI"
     ]
     company_tickers = ["MSFT", "NVDA", "AAPL", "GOOGL", "TSLA", "AMZN", "ANET", "CSCO", "HPE", "META", "NKE", "AVGO", "INTC", "AMD", "BLZE" ]
-
     etf_tickers = ["CSP1.L", "SPX4.L", "ISF.L", "ISFR.L", "VGER.L", "WDEP.L","FSEU.L", "DXJG.L", "EMVL.L", "VEMT.L", "FLO5.L"]
 
     current_datetime = my_datetime()
@@ -136,12 +164,11 @@ def index():
     etf_rows = get_stock_data(etf_tickers)
     etf_table = make_table(etf_rows)
 
-    index_rows = get_stock_data(index_tickers)
-    index_table = make_table(index_rows)
+    index_rows = get_stock_data(index_tickers, show_volume=False)
+    index_table = make_table(index_rows, show_volume=False)
 
-    company_rows = get_stock_data(company_tickers)
-    company_table = make_table(company_rows)
-
+    company_rows = get_stock_data(company_tickers, show_market_cap=True)
+    company_table = make_table(company_rows, show_market_cap=True)
 
     return render_template_string(
         HTML_TEMPLATE,
