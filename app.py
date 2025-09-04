@@ -157,7 +157,7 @@ def index():
         "^GSPC", "^SP400", "^SP600", "^IXIC", "^DJI"
     ]
     company_tickers = ["MSFT", "NVDA", "AAPL", "GOOGL", "TSLA", "AMZN", "ANET", "CSCO", "HPE", "META", "NKE", "AVGO", "INTC", "AMD", "BLZE" ]
-    etf_tickers = ["CSP1.L", "SPX4.L", "ISF.L", "ISFR.L", "VGER.L", "WDEP.L","FSEU.L", "DXJG.L", "EMVL.L", "VEMT.L", "FLO5.L"]
+    etf_tickers = ["CSP1.L", "SPX4.L", "ISF.L", "ISFR.L", "VGER.L", "WDEP.L","FSEU.L", "DXJG.L", "EMVL.L", "VEMT.L", "FLO5.L", "ACWI.L"]
 
     current_datetime = my_datetime()
 
