@@ -22,11 +22,13 @@ HTML_TEMPLATE = """
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
         th { background: #4CAF50; color: white; }
         tr:nth-child(even) { background: #f2f2f2; }
-        .datetime { font-size: 1.2em; margin-bottom: 20px; color: #555; }
+        .datetime { font-size: 1.2em; margin-bottom: 10px; color: #555; }
+        .large-percent { font-size: 3em; font-weight: bold; color: #222; margin-bottom: 20px; }
     </style>
 </head>
 <body>
     <div class="datetime">{{ current_datetime }}</div>
+    <div class="large-percent">59%</div>
     <h2>ETF Tickers</h2>
     {{ etf_table|safe }}
     <h2>Indexes</h2>
